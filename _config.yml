@@ -1,6 +1,6 @@
-title: 编程和酒
-url: https://yandaoyu.github.io/Stories/
-baseurl: ''
+title: 岛
+url: https://yandaoyu.github.io
+baseurl: '/Stories'
 cdnurl: 'https://blog-biezhi-me-1251171175.cos.ap-shanghai.myqcloud.com'
 description: >
   关于编程、人生、认知和我的思想。
@@ -15,7 +15,6 @@ disqus: blog-biezhi-me
 
 markdown: kramdown
 highlighter: rouge
-plugins:             [jekyll-paginate, jekyll-sitemap, jekyll-feed, jekyll-seo-tag]
 paginate: 12
 paginate_path: "/page/:num"
 
