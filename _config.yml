@@ -5,7 +5,7 @@ cdnurl: 'https://blog-biezhi-me-1251171175.cos.ap-shanghai.myqcloud.com'
 description: >
   关于编程、人生、认知和我的思想。
 
-permalink: Stories/:year/:month/:title.html
+permalink: /:year/:month/:title.html
 
 image: /public/images/mountains.jpg
 color: '#dc322f'
