@@ -20,3 +20,6 @@ https://blog.biezhi.me source code.
 - 如果是子博要改`_config.yml`里的`baseurl`为repo名字。
 - Title 和 description 在 `_config.yml`。
 - 主页文字在`_layouts/index.html`里改。
+- 主页的左边图在`index.html`, 帖子的左边图和头像在`_config.xml`,     
+tag的左边图在`tags/index.md`, 友链的左边图在`links.md`,    
+关于的左边图在`about.md`, logo的设定在`_includes/sidebar.html`.   

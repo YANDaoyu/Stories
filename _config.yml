@@ -20,8 +20,8 @@ paginate_path: "/page/:num"
 
 # 作者信息
 author:
-  name: biezhi
-  email: biezhi.me@gmail.com
+  name: Island YAN
+  email: yqy.yan@qq.com
   photo: /public/images/avatar.jpeg
 
 # 社交信息
