@@ -15,6 +15,7 @@ disqus: blog-biezhi-me
 
 markdown: kramdown
 highlighter: rouge
+plugins:             [jekyll-paginate, jekyll-sitemap, jekyll-feed, jekyll-seo-tag]
 paginate: 12
 paginate_path: "/page/:num"
 
