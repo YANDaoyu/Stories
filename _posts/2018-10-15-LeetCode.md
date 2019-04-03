@@ -1,0 +1,1512 @@
+---
+layout: post
+title: "Marks of LeetCode: Top 100 liked Questions (in Algorithms)"
+author: "Island"
+mathjax: true
+categories: MyNotes
+tags: [Cplusplus]
+---
+
+From 15th Oct, 2018 to 04th Feb, 2019.     
+Happy Chinese New Year!!!!!
+
+
+## 002. [Add Two Numbers](https://leetcode.com/problems/add-two-numbers/description/)
+
+> You are given two **non-empty** linked lists representing two non-negative integers. The digits are stored in **reverse order** and each of their nodes contain a single digit. Add the two numbers and return it as a linked list.   
+>You may assume the two numbers do not contain any leading zero, except the number 0 itself.
+
+
+```cpp
+/**
+* Definition for singly-linked list.
+* struct ListNode {
+*     int val;
+*     ListNode *next;
+*     ListNode(int x) : val(x), next(NULL) {}
+* };
+*/
+class Solution {
+public:
+ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {  
+    ListNode *head = NULL, *prev = NULL;
+    int carry = 0;
+
+    while (l1 || l2) {
+        int v1 = l1? l1->val: 0;
+        int v2 = l2? l2->val: 0;
+        int tmp = v1 + v2 + carry;
+        carry = tmp / 10;
+        int val = tmp % 10;
+
+
+        ListNode* cur = new ListNode(val);
+        /* Step3: create a newcur */
+        if (!head) head = cur;
+        /* Step1: head->next = NULL */
+        if (prev) prev->next = cur;
+        /* Step4: cur->next = head->cur = newcur */
+        prev = cur;
+        /* Step2: prev = cur = head */
+
+
+        l1 = l1? l1->next: NULL;
+        l2 = l2? l2->next: NULL;
+    }
+    if (carry > 0) {
+        ListNode* l = new ListNode(carry);
+        prev->next = l;
+    }
+    return head;
+}
+};
+```
+Forgot necessary knowledges about **structure** and **point** and **linked list**. Besides, define a function in structure as `ListNode(int x)` is very common, but the operation `new ListNode(val)` may be not necessarily. If you want to create a structure dynamic,  and be able to delete whenever you want, you should use `new`.   
+Created `new` in `heap` or `stack`?    
+Only have a comparable ambiguous understanding of these stuffs. TuT.
+
+
+## 004. [Median of Two Sorted Arrays](https://leetcode.com/problems/median-of-two-sorted-arrays/description/)
+
+>There are two sorted arrays **nums1** and **nums2** of size $m$ and $n$ respectively.   
+>Find the median of the two sorted arrays. The overall run time complexity should be $O(log (m+n))$.   
+>You may assume **nums1** and **nums2** cannot be both empty.
+
+Noted that: 
+1. these two arrays are sorted.  
+So combine them and then sort them may not be a good idea. At least it will cost $O(m+n)$ when scan the whole array.
+
+2. the time complexity is $O(log(m+n))$.  
+When it controlled by $log$, it definitely a mark of **binary** search!
+
+Consider an algorithm designed to find the **Kth** number in two arrays.     
+If the two arrays are long enough, then it is possible to discard **K/2** members each time:     
+* Mark the arrays as A and B, then compare A[K/2] and B[K/2].     
+* If A[K/2] > B[K/2], then discard the members before K/2+1 in B.
+
+```cpp
+class Solution {
+public:
+double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
+    unsigned long length;
+    length = nums1.size() + nums2.size();
+    int left = (int)(length + 1) / 2;
+    int right = (int)(length + 2) / 2;
+    return (getKth(nums1, 0, (int)nums1.size() - 1, nums2, 0, (int)nums2.size() - 1, left) * 0.5 + getKth(nums1, 0, (int)nums1.size() - 1, nums2, 0, (int)nums2.size() - 1, right) * 0.5);
+}
+private:
+int getKth(vector<int>& nums1, int start1, int end1, vector<int>& nums2, int start2, int end2, int k)
+{
+    int len1 = end1 - start1 + 1;
+    int len2 = end2 - start2 + 1;
+
+    if(len1 > len2)
+        return getKth(nums2, start2, end2, nums1, start1, end1, k);
+
+    if(len1 == 0)
+        return nums2.at(start2 + k-1);
+
+    if(k == 1)
+        return min(nums1.at(start1), nums2.at(start2));
+
+    int i = start1 + min(k/2, len1) - 1;
+    int j = start2 + min(k/2, len2) - 1;
+    if(nums1.at(i) > nums2.at(j))
+        return getKth(nums1, start1, end1, nums2, j+1, end2, k - min(k/2,len2));
+    else return getKth(nums1, i+1, end1, nums2, start2, end2, k - min(k/2, len1));
+}
+};
+```
+
+And if you need illustrations, here is a Chinese [reference](http://windliang.cc/2018/07/18/leetCode-4-Median-of-Two-Sorted-Arrays/)(part 6, don't contain Chinese in illustrations). In the reference, it also give another algorithm(part 8) that time complexity is $O(log(min(m, n)))$.
+
+## 010. [Regular Expression Matching](https://leetcode.com/problems/regular-expression-matching/description/)
+
+>Given an input string `s` and a pattern `p`, implement regular expression matching with support for `'.'` and `'*'`.       
+>`'.'` Matches any single character.       
+>`'*'` Matches zero or more of the preceding element.       
+>The matching should cover the **entire** input string (not partial).       
+
+My explanation: (The example of the problem given in web is right, but their explanations are somehow wrong, in my view.)`'*'`can be use as a delete to the previous character, and if `s = "ab"`, `p = "kcab"`, the return value will be `false`,; if `s = "ab"`, `p = "c*ab"`, the return value will be `true`. (Actually I totally have no idea about this problem at the very beginning.TuT)
+
+It's a **Dynamic Programming** problem. And you can refer [this](https://leetcode.com/problems/regular-expression-matching/discuss/5684/9-lines-16ms-C++-DP-Solutions-with-Explanations).
+Define `P[i][j]` to represent the situation of whether `s[0..i)` matches `p[0..j)`, and then the `P[i][j]` can be decide by the previous `P[][]`.             
+Consider the char in `p[j-1]`:           
+1. When `p[j-1] != '*'`, then `P[i][j]` will be `true` only if `P[i-1][j-1] == true` and (`p[j-1] == s[i-1]` or `p[j-1] == '.'`).        
+2. When `p[j-1] == '*'`, and the previous character doesn't repeat(which equals a deletion), then `P[i][j]` will be `true` only if `P[i][j-2] == true`.
+3. When `p[j-1] == '*'`, and the previous character repeats at least once, then `P[i][j]` will be `true` only if `P[i-1][j] == true` (equals `P[i-1][j-2] == true`) and (`s[i-1] == p[j-2]` or `p[j-2] == '.'`).
+
+```cpp
+class Solution {
+public:
+bool isMatch(string s, string p) {
+    int m = (int)s.length();
+    int n = (int)p.length();
+    vector<vector<bool> > dp(m + 1, vector<bool> (n + 1, false));
+
+    dp[0][0] = true;
+    for (int i = 0; i <= m; i++)
+        for (int j = 1; j <= n; j++)
+            if (p[j - 1] == '*')
+                dp[i][j] = dp[i][j - 2] || (i > 0 && (s[i - 1] == p[j - 2] || p[j - 2] == '.') && dp[i - 1][j]);
+            else dp[i][j] = i > 0 && dp[i - 1][j - 1] && (s[i - 1] == p[j - 1] || p[j - 1] == '.');
+    return dp[m][n];
+}
+};
+```
+
+BTW, `'*'` won't appear in the beginning. And English is quite an obstacle for me in processing the problems. :) *****.
+
+## 15. [3Sum](https://leetcode.com/problems/3sum/description/)
+
+>Given an array `nums` of *n* integers, are there elements *a, b, c* in `nums` such that *a + b + c = 0*? Find all unique triplets in the array which gives the sum of zero.
+
+Time limit is very strick. The time complexity should better than $O(n^2)$. We need to avoid duplicates before push the combination into vector, and `find` function is time comsuming.
+
+```cpp
+sort(nums.begin(), nums.end());
+    
+for(int i =0; i < nums.size();){
+    int start = i+1, end = nums.size()-1;
+    // this is somehow important
+
+    while(start < end){
+        if(nums[i]+nums[start]+nums[end] == 0){
+            rtn.push_back({nums[i],nums[start],nums[end]});
+            start++; end--;
+            while( (start < end) && nums[start] == nums[start-1] ) start++;
+            while( (start < end) && nums[end] == nums[end+1] ) end--;
+
+        }else if(nums[i]+nums[start]+nums[end] < 0){
+            start++;
+            while( (start < end) && nums[start] == nums[start-1] ) start++;
+        }else{ // nums[i]+nums[start]+nums[end] > 0
+            end--;
+            while( (start < end) && nums[end] == nums[end+1] ) end--;
+        }
+    }
+    
+    i++;
+    while( (i < nums.size()) && nums[i] == nums[i-1] ) i++;
+    
+}
+```
+
+
+## 33. [Search in Rotated Sorted Array](https://leetcode.com/problems/search-in-rotated-sorted-array/description/)
+
+Normal. Solve it by considering 4 situations under the control of `begin` and `end`.
+
+## 34. [Find First and Last Position of Element in Sorted Array](https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/description/)
+
+> Given an array of integers `nums` sorted in ascending order, find the starting and ending position of a given `target` value.        
+> Your algorithm's runtime complexity must be in the order of $O(log n)$.          
+> If the target is not found in the array, return `[-1, -1]`.
+
+The algorithm of this problem is quit easy.
+And I just want to emphasis part of the algorithm:
+
+```cpp
+if(nums[begin] == target)
+{
+    result.push_back(begin);
+    while(begin < end)
+    {
+        int medium = (begin + end) / 2;
+        if(nums[medium] > target)
+            end = medium-1;
+        else begin = medium+1; 
+        // nums[medium] = target
+    }
+    if(nums[begin] > target) result.push_back(begin-1);
+    else result.push_back(begin);
+    return result;
+}
+```
+
+In this part, it only consider the situation that an array begin with the target.      
+For example, if the `nums[4] = {2,2,2,4}, target = 2`.        
+1st iteration, `medium = (0+3)/2 = 1`, and `nums[1] = 2 = target`, then `begin = 1+1 = 2`.          
+2nd iteration, `medium = (2+3)/2 = 2`, and `nums[2] = 2 = target`, then `begin = 2+1 = 3`.               
+Break the iteration with `begin = end = 3`.       
+If  the `nums[4] = {2,3,4,5}, target = 2`.
+1st iteration, `medium = (0+3)/2 = 1`, and `nums[1] = 3 > target`, then `end = 1-1 = 0`.       
+Break the iteration with `begin = end = 0`.          
+From the two cases, we can see that the result of the iteration may not exactly end in the point we want, but very near, often just in neighbours. 
+
+That caused by the **last step** before the end of iteration: if the last run the `begin = medium+1`, then the `nums[begin]` will be bigger than target, else won't. So we add one more `if-else` to fine the result.
+
+## 42. [Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)
+
+> Given *n* non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it is able to trap after raining.
+
+![The above elevation map is represented by array [0,1,0,2,1,0,1,3,2,1,2,1]. In this case, 6 units of rain water (blue section) are being trapped.](https://assets.leetcode.com/uploads/2018/10/22/rainwatertrap.png)
+
+Use mathematics to solve this kind of problems! The aim is to calculate the area of `blue`.      
+First, find `biggest` and `smallest` integer of the array, then minus operation level by level. By doing this, we can gain the area of `black+blue`.         
+The detail of minus is: find the `head` and `tail` of the array that no bigger than `some_integer`, and then `trapwater -= (head+tail)`.       
+And the corresponding code is:
+
+```cpp
+for(int i = *min; i <= *max; i++ )
+{
+    int head, tail;
+    int j;
+    for(j = 0; j < size && height[j] < i; j++){}
+    head = j;
+    
+    for(j = size - 1; j >= 0 && height[j] < i; j--){}
+    tail = size - 1 - j;
+    trapwater -= (head+tail);
+}
+```
+
+Second, we calculate the area of `black`. It can be done by simply add all the interger of given array together.        
+And then the result is easy to find, I guess. :)
+
+## 46. [Permutations](https://leetcode.com/problems/permutations/)
+
+> Given a collection of **distinct** integers, return all possible permutations.
+
+A typical backtracking problem, solve the problem with a recursive solution.
+
+## 48. [Rotate Image](https://leetcode.com/problems/rotate-image/)
+
+> You are given an n x n 2D matrix representing an image.      
+> Rotate the image by 90 degrees (clockwise).        
+> **Note**:      
+> You have to rotate the image **in-place**, which means you have to modify the input 2D matrix directly. **DO NOT** allocate another 2D matrix and do the rotation.
+
+Well, still can be solove by somehow.. an intuition.     
+We need to gain a matirx `A` that satisfies `A[j][n-i-1] = R[i][j]`, where `R` is the raw given matrix.      
+And the corresponding code is:
+
+```cpp
+reverse(matrix.begin(), matrix.end());
+for (int i = 0; i < matrix.size(); ++i) {
+    for (int j = i + 1; j < matrix[i].size(); ++j)
+        swap(matrix[i][j], matrix[j][i]);
+}
+```
+
+First, we reverse rows of the matrix, and after this operation we have `B[n-i-1][j] = R[i][j]`.        
+Then, we exchange the row index and column index. That means `A[j][n-i-1] = B[n-i-1][j] = R[i][j]`. That's what we want.
+
+## 49. [Group Anagrams](https://leetcode.com/problems/group-anagrams/)
+
+> Given an array of strings, group anagrams together.
+
+Let's first have a look on `unordered_map`: [Unordered map](https://en.cppreference.com/w/cpp/container/unordered_map) is an associative container that contains key-value pairs with unique keys. Search, insertion, and removal of elements have average constant-time complexity.       
+So the operation `m.second` means to get the value of the element in this unordered map, btw, `m.first` means to get the key of the element.
+
+```cpp
+class Solution {
+public:
+    vector<vector<string>> groupAnagrams(vector<string>& strs) {
+        unordered_map<string, multiset<string>> mp;
+        for (string s : strs) {
+            string t = strSort(s);
+            mp[t].insert(s);
+        }
+        vector<vector<string>> anagrams;
+        for (auto m : mp) { 
+            vector<string> anagram(m.second.begin(), m.second.end());
+            anagrams.push_back(anagram);
+        }
+        return anagrams;
+    }
+private:
+    string strSort(string& s) {
+        int count[26] = {0}, n = s.length();
+        for (int i = 0; i < n; i++)
+            count[s[i] - 'a']++;
+        int p = 0;
+        string t(n, 'a');
+        for (int j = 0; j < 26; j++)
+            for (int i = 0; i < count[j]; i++)
+                t[p++] += j;
+        return t;
+    } 
+};
+```
+
+Actually the algorithm is very easy to understand, and it conrols the time complexity of sort to $O(n)$ rather than normal $O(nlog(n))$.
+
+## 53. [Maximum Subarray](https://leetcode.com/problems/maximum-subarray/)
+
+> Given an integer array `nums`, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.
+
+Classic **Dynamic Programming** problem, we can use Kadane's algorithm to solve it.        
+That is, scan from `nums`, and for each element in this array, set `dp[i]` to be the sum of a contiguous subarray that ends with `nums[i]` and has the max sum.      
+Then `dp[i+1]` = `dp[i] + nums[i+1]` or `nums[i+1]`.       
+And the result can be represent as the max element in the `dp` array.
+
+## 55. [Jump Game](https://leetcode.com/problems/jump-game/)
+> Given an array of non-negative integers, you are initially positioned at the first index of the array.       
+Each element in the array represents your maximum jump length at that position.          
+Determine if you are able to reach the last index.
+
+```cpp
+bool canJump(vector<int>& nums) {
+    int size=nums.size(), step=nums[0];
+    for(int i = 1; i < size; ++i){
+        if(step-- < 0)
+           return false;
+        if(nums[i] > step)
+           step = nums[i];
+    }
+    return true;
+}
+```
+Easy to understand, btw, `step` is the rest step it can take at the position, can be update by `nums[i]` if it bigger than the before record. The interation begins with `1`, and whenever the step is less than 0 and haven't reach the tail, it returns false.
+
+## 56. [Merge Intervals](https://leetcode.com/problems/merge-intervals/)
+
+> Given a collection of intervals, merge all overlapping intervals.
+
+```cpp
+sort(intervals.begin(), intervals.end(), 
+[](Interval a, Interval b)
+    {return a.start < b.start;} );
+```
+Well, I haven't saw this operation before, it looks like very useful!     
+And after we sort the intervals, we do combination by comparing the its end and start till it have no overlap.
+
+```cpp
+int k = 0;
+for(int i = 1; i < len; i++)
+{
+    if(intervals[i].start <= result[k].end)
+        result[k].end = max(result[k].end, intervals[i].end);
+    else{
+        k++;
+        result.push_back(intervals[i]);
+    }
+}
+```
+
+## 62. [Unique Paths](https://leetcode.com/problems/unique-paths/)
+
+> A robot is located at the top-left corner of a *m x n* grid (marked 'Start' in the diagram below).         
+The robot can only move **either down or right** at any point in time. The robot is trying to reach the bottom-right corner of the grid (marked 'Finish' in the diagram below).         
+How many possible unique paths are there?
+
+![Above is a 7 x 3 grid. How many possible unique paths are there?](https://assets.leetcode.com/uploads/2018/10/22/robot_maze.png)
+
+From the description, we noted that the path that can reach the first row and the first column is **1**. And the other position's value can be caculate by adding its up and left value. That means `way[j][i] = way[j-1][i] + way[j][i-1]` if `i != 0 && j != 0`.        
+Then the result can be represented as `way[m-1][n-1]`.       
+(Actually it's a classic math problem in junior high school level.)
+
+
+## 64. [Minimum Path Sum](https://leetcode.com/problems/minimum-path-sum/)
+
+> Given a *m x n* grid filled with non-negative numbers, find a path from top left to bottom right which minimizes the sum of all numbers along its path.        
+**Note**: You can only move either down or right at any point in time.
+
+Still similar as before. Replace `way[j][i] = way[j-1][i] + way[j][i-1]` as `way[i][j] = min(way[i][j-1], way[i-1][j]) + grid[i][j]`.     
+And return `way[m-1][n-1]`.
+
+
+## 72. [Edit Distance](https://leetcode.com/problems/edit-distance/)
+
+> Given two words word1 and word2, find the minimum number of operations required to convert word1 to word2.        
+You have the following 3 operations permitted on a word:      
+> 1. Insert a character
+> 2. Delete a character
+> 3. Replace a character
+
+This problem can be applied in a real world, and edit distance also named **the Levenshtein Distance**.
+
+Well, there is a [video](https://www.youtube.com/watch?v=MiqoA-yF-0M) that helps a lot in this problem. And here is the key:            
+![key](https://ws2.sinaimg.cn/large/006tNc79gy1fzd33rtwdhj30yo0omtsj.jpg)
+Or maybe you need more [reference](https://leetcode.com/problems/edit-distance/discuss/25846/20ms-Detailed-Explained-C++-Solutions-(O(n)-Space)).
+
+
+## 75. [Sort Colors](https://leetcode.com/problems/sort-colors/)
+
+> Given an array with *n* objects colored red, white or blue, sort them **in-place** so that objects of the same color are adjacent, with the colors in the order red, white and blue.      
+Here, we will use the integers 0, 1, and 2 to represent the color red, white, and blue respectively.      
+**Note**: You are not suppose to use the library's sort function for this problem.
+
+```cpp
+void sortColors(vector<int>& nums) {
+    int R = 0, B = nums.size() - 1;
+    for(int i = 0; i < B + 1;)
+    {
+        if(nums[i] == 0)
+            swap(nums[i++], nums[R++]);
+        else if(nums[i] == 2)
+            swap(nums[i], nums[B--]);
+        else i++;
+    }
+}
+```
+The result array is looks like: [0,0,1,1,2,2], means [red, red, white, white, blue, blue].
+We store the index of `red` and `blue`, and ensure they can be put into the right place.        
+When `nums[i] == 0`, then exchange it with `nums[R]` and `i++`, `R++`.           
+As when `nums[i] == 2`, we won't do `i++` operation, and the `nums[R]` is behind `nums[i]`, so `nums[R]` can only be `0` or `1`.      
+Here, whenever we do `swap(nums[i], nums[R])`, then `nums[i]` will be `0` or `1`, and the elements before R is `0`. Also we can know that the elements between `R` and `i` is `1`, the elements after `B` is `2`.    
+Do the interation till `i` meets `B`, then all the array is be sorted.
+
+
+## 76. [Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/)
+
+> Given a string S and a string T, find the minimum window in S which will contain all the characters in T in complexity $O(n)$.
+
+```cpp
+for(auto c: t)  map[c]++;
+int begin=0, end=0;
+int d = INT_MAX, head = 0;
+while(end < m){
+    if(map[s[end]] > 0) 
+        n--; 
+    map[s[end]]--; end++;
+    while(n == 0){ 
+        if(end-begin < d) {
+            d = end - begin;
+            head = begin;
+        }
+        if(map[s[begin]] == 0) 
+            n++;  
+        map[s[begin]]++;begin++;
+    }  
+}
+```
+
+Here is the [official solution](https://leetcode.com/problems/minimum-window-substring/solution/) with explanation. **CLICK IT! IT'S BEAUTIFUL!**          
+The hint is to use to point to control the window, and that's 
+a normal operation in substring problem.
+`d` is the length of the required substring, 
+and `head` is the begin position of the substring.     
+Whenever `n == 0`, it means the substring 
+from `begin` to `end` contains `t`.        
+If `map[s[begin]] == 0`, it means that if delete `s[begin]`, 
+the substring wouldn't contain all the letter in `t`.     
+Btw, the letter that `in_s` but `not_in_t` will never be greater than `0` (equals it won't lead to a `n--` operation),
+and once it becomes `0`, it means that the elements between here to `end` won't contain this letter (equals it won't led to a `n++` operation).
+
+## 78. [Subsets](https://leetcode.com/problems/subsets/)
+
+> Given a set of **distinct** integers, nums, return all possible subsets (the power set).        
+**Note**: The solution set must not contain duplicate subsets.
+
+Obviously, a set of *n* distinct intergers will have 
+$2^n - 1$ non-zero different sunsets.
+They can be represent as '00000', '00001', '00010', and so on.
+So we can do the interation from $1$ to $2^n - 1$(with their binaries)
+to build these distinct subsets.
+
+## 79. [Word Search](https://leetcode.com/problems/word-search/)
+
+> Given a 2D board and a word, find if the word exists in the grid.      
+The word can be constructed from letters of sequentially adjacent cell, where "adjacent" cells are those horizontally or vertically neighboring. The same letter cell may not be used more than once.
+
+Not interesting, use DFS to solve it.
+
+## 84. [Largest Rectangle in Histogram](https://leetcode.com/problems/largest-rectangle-in-histogram/)
+
+> Given *n* non-negative integers representing the histogram's bar height where the width of each bar is 1, find the area of largest rectangle in the histogram.
+
+I solved it with stupid interation.
+
+And the [reference](https://leetcode.com/problems/largest-rectangle-in-histogram/discuss/28905/My-concise-C%2B%2B-solution-AC-90-ms) tells a solution that the key is to drop all the integer that bigger that `hegihts[i]`:
+```cpp
+int largestRectangleArea(vector<int> &height) {
+    int ret = 0;
+    height.push_back(0);
+    vector<int> index;
+    
+    for(int i = 0; i < height.size(); i++)
+    {
+        while(index.size() > 0 && height[index.back()] >= height[i])
+        {
+            int h = height[index.back()];
+            index.pop_back();
+            
+            int sidx = index.size() > 0 ? index.back() : -1;
+            if(h * (i-sidx-1) > ret)
+                ret = h * (i-sidx-1);
+        }
+        index.push_back(i);
+    }
+    
+    return ret;
+}
+```
+
+## 85. [Maximal Rectangle](https://leetcode.com/problems/maximal-rectangle/)
+
+> Given a 2D binary matrix filled with 0's and 1's, find the largest rectangle containing only 1's and return its area.
+
+```cpp
+int max = -1;
+vector<int> heights(n);
+for(int i = 0; i < m; i++){
+    for(int j = 0; j < n; j++){
+        if(matrix[i][j] == '0') heights[j] = 0;
+        else heights[j]++;
+    }
+    // use the algorithm in Q84
+    int tmax = largestRectangleArea(heights);
+    if(tmax > max) max = tmax;
+}
+```
+
+We acn gain the result by compare the rectangle level by level.      
+Each time calculate the biggest rectangle from row `i` to `0`.
+
+## 94/96/98/101/102/104: All About Trees
+
+Just skip these easy problems~
+
+## 105. [Construct Binary Tree from Preorder and Inorder Traversal](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
+
+> Given preorder and inorder traversal of a tree, construct the binary tree.       
+**Note**:       
+You may assume that duplicates do not exist in the tree.
+
+Cuz there is no duplicates, so each elements will have there own index.
+But the operation to find the index of special integer is a little complex:
+```cpp
+vector<int>::iterator iElement = find(inorder.begin(), inorder.end(), preorder[0]);
+int pos = distance(inorder.begin(), iElement);
+```
+
+## 114. [Flatten Binary Tree to Linked List](https://leetcode.com/problems/flatten-binary-tree-to-linked-list/)
+
+> Given a binary tree, flatten it to a linked list **in-place**.
+
+```cpp
+void flatten(TreeNode *root) {
+    while (root) {
+        if (root->left && root->right) {
+            TreeNode* t = root->left;
+            while (t->right)
+                t = t->right;
+            t->right = root->right;
+        }
+
+        if(root->left)
+            root->right = root->left;
+        root->left = NULL;
+        root = root->right;
+	}
+}
+```
+
+We want to make the tree has only right leaves.         
+The first `if` interation is to make the right half of this node 
+link to the biggest one of the left half, and it's the node's right leaf.      
+Then the right half totally is copied to the left half,
+so we can do the the copy and delete of the node's left leaf, and then go to the right leaf again. 
+
+## 124. [Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/)
+
+> Given a **non-empty** binary tree, find the maximum path sum.      
+For this problem, a path is defined as any sequence of nodes from some starting node to any node in the tree along the parent-child connections. The path must contain **at least one node** and does not need to go through the root.
+
+The requirement is: 
+the path must contain at least one node; 
+the path does not need to go through the root.     
+```cpp
+class Solution {
+    int answer = -2147483648;
+    
+    int m(TreeNode* n)
+    {
+        int a = n -> left == NULL ? 0 : max(0,m(n -> left));
+        int b = n -> right == NULL ? 0 : max(0,m(n -> right));
+        
+        answer = max(answer, n -> val + a + b);
+        return n -> val + max(a,b);
+    }
+    
+public:
+    int maxPathSum(TreeNode* root) {
+        m(root);
+        return answer;
+    }
+};
+```
+
+Well, save the `answer` out of the function is more effective.       
+In this algorithm, `answer` is updated by recursive, 
+and `function m(TreeNode* n)` returns the the maximum of 
+a linked line of the tree without contains 
+more than 1 node in the same level.
+
+It's a little wired, or say tricky to me. Only me.
+
+## 128. [Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/)
+
+> Given an unsorted array of integers, find the length of the longest consecutive elements sequence.      
+Your algorithm should run in $O(n)$ complexity.
+
+```cpp
+unordered_map<int, int> m;
+int r = 0;
+for (auto i : nums) {
+    if(m[i] == 0){
+        m[i] = 1;
+        m[i] = m[i+1] + m[i-1] +1;
+        m[i + m[i+1]] = m[i];
+        m[i - m[i-1]] = m[i];
+        r = max(r, m[i]);
+    }
+}
+return r;
+```
+The key is to keep the sequence's head and tail 
+same with the sequence's length.
+
+## 136. [Single Number](https://leetcode.com/problems/single-number/)
+
+> Given a **non-empty** array of integers, every element appears twice except for one. Find that single one.
+
+What I want to emphasize is the operation of `XOR`:
+$$A ^ A = 0, A ^ B ^ A = B$$
+And then the problem can be solved by doing interation with `result = result^nums[i]`.
+
+
+## 139. [Word Break](https://leetcode.com/problems/word-break/)
+
+> Given a **non-empty** string s and a dictionary *wordDict* containing a list of non-empty words, determine if s can be segmented into a space-separated sequence of one or more dictionary words.     
+**Note**:   
+> - The same word in the dictionary may be reused multiple times in the segmentation.
+> - You may assume the dictionary does not contain duplicate words.
+
+My first beats 100%!       
+The algorithm is very easy, it marks each word's tail as `true`, and only consider the word that begin with `true`.
+```cpp
+dp[0]=true;
+for(int i = 1; i <= size; i++)
+    for(int j = i-1; j >= 0 && dp[i] == false; j--)
+        if(dp[j]){
+            string word = s.substr(j,i-j);
+            if(find(dict.begin(), dict.end(), word) != dict.end())
+                dp[i]=true;
+        }
+return dp[size];
+```
+
+## 141. [Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/)
+
+> Given a linked list, determine if it has a cycle in it.     
+To represent a cycle in the given linked list, we use an integer pos which represents the position (0-indexed) in the linked list where tail connects to. If pos is -1, then there is no cycle in the linked list.
+
+Use `unordered_map` to solve this problem, store the `ListNode*`.   
+```cpp
+unordered_map<ListNode* ,int> address;
+while(head){
+    if(address[head]) return true;
+    else address[head] = 1;
+    head = head->next;
+}
+return false;
+```  
+Or use two pointer to detect the circle.
+```cpp
+ListNode *fastPtr = head, *slowPtr = head;
+while(slowPtr && fastPtr && fastPtr->next ){
+    fastPtr = fastPtr->next->next;
+    slowPtr = slowPtr->next;
+    if(fastPtr == slowPtr)
+        return true;
+}
+return false;
+```
+
+## 142. [Linked List Cycle II](https://leetcode.com/problems/linked-list-cycle-ii/)
+
+> Given a linked list, return the node where the cycle begins. If there is no cycle, return null.      
+To represent a cycle in the given linked list, we use an integer pos which represents the position (0-indexed) in the linked list where tail connects to. If pos is -1, then there is no cycle in the linked list.     
+**Note**: Do not modify the linked list.
+
+It's a **Goldman Sachs** onsite interview question, I met last year.
+
+We use two pointer to solve this problem, one called `fast` moves 2 step each time, one called `slow` moves 1 step each time.   
+L1 is defined as the distance between the head point and entry point.  
+L2 is defined as the distance between the entry point and the meeting point.     
+C is defined as the length of the cycle.   
+L1 is what we want to get.    
+According to the definition of L1, L2 and C, we can obtain:
+* the total distance of the slow pointer traveled when encounter is L1 + L2 + m * C
+* the total distance of the fast pointer traveled when encounter is L1 + L2 + n * C
+* 2 * (L1+L2+m*C) = L1 + L2 + n * C => L1 + L2 = (n-2m) * C 
+* => L1 = (n-2m - 1) * C + (C - L2)
+* => L2 = (n-2m) * C - L1
+
+Then the list will be represented as:    
+```
+--  L1  --  L2  --  (C-L2)  --       
+--  L1  | --    cicle   --  |   
+```
+When they meet, `slow` and `fast` stop in L1+L2 (they will back to L1 after C-L2 step), we build a new pointer `new` and go from the head.  
+After C-L2 step, `slow` is in L1, 
+`new` in C-L2, `(n-2m-1)\*C` away from L1. But after `(n-2m-1)\*C` step, slow still in L1. That means, when `new` and `slow` meet, they will in L1, the node where the cycle begins.      
+We can get the value of L2 from a given C and L1,
+and then get the value of `n-2m-1`, it shows the relationship of 
+`m` and `n`, so we can set `m = 0` and rebuild the situation of their first meet.
+
+
+## 146. [LRU Cache](https://leetcode.com/problems/lru-cache/)
+
+> Design and implement a data structure for `Least Recently Used (LRU) cache`. It should support the following operations: `get` and `put`.   
+`get(key)` - Get the value (will always be positive) of the key if the key exists in the cache, otherwise return -1.         
+`put(key, value)` - Set or insert the value if the key is not already present. When the cache reached its capacity, it should invalidate the least recently used item before inserting a new item.
+
+So lucky that **Back To Back SWE** still made a [video](https://www.youtube.com/watch?v=S6IfqDXWa10&t=26s) to solve this problem.
+The key is to combine `DoubleLinkedList` and `HashMap`, the demo code is written in Java (... I use C++).
+
+More reference, 
+[solution1](https://leetcode.com/problems/lru-cache/discuss/45976/C%2B%2B11-code-74ms-Hash-table-%2B-List) and 
+[solution2](https://leetcode.com/problems/lru-cache/discuss/45912/Clean-Short-Standard-C%2B%2B-solution-NOT-writing-C-in-C%2B%2B-like-all-other-lengthy-ones),
+wirtten in C++, also with hashtable and list 
+to make the `put` and `get` operation run in less time.
+And here is a more understandable code run in 124ms:
+```cpp
+int size;
+list<int> LRU;                              
+unordered_map<int, list<int>::iterator> mp; 
+unordered_map<int, int> kv;                 
+
+LRUCache(int capacity) : size(capacity) {}
+
+int get(int key) {
+    if (kv.count(key) == 0) return -1;
+    updateLRU(key);
+    return kv[key];
+}
+void put(int key, int value) {
+    if (kv.size() == size && kv.count(key) == 0)
+        delet_last();
+    updateLRU(key);
+    kv[key] = value;
+}
+void updateLRU(int key) {
+    if (kv.count(key)) 
+        LRU.erase(mp[key]);
+    LRU.push_front(key);
+    // update the interator
+    mp[key] = LRU.begin();
+}
+void delet_last() {
+    // erase the last value
+    mp.erase(LRU.back());
+    kv.erase(LRU.back());
+    LRU.pop_back();
+}
+```
+
+## 148. [Sort List](https://leetcode.com/problems/sort-list/)
+
+> Sort a linked list in $O(n log n)$ time using constant space complexity.
+
+I slove this problem by merge sort. Let's refer [this](https://leetcode.com/problems/merge-two-sorted-lists/).
+```cpp
+ListNode* sortList(ListNode* head) {
+    if(head == NULL || head->next == NULL) return head;
+    ListNode* fast = head;
+    ListNode* slow = head;
+    while(fast->next && fast->next->next){
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+    fast = slow->next;
+    slow->next = nullptr;
+    slow = sortList(head);
+    fast = sortList(fast);
+    return mergeTwoLists(slow, fast);
+}
+```
+
+## 152. [Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray/)
+
+> Given an integer array `nums`, find the contiguous subarray within an array (containing at least one number) which has the largest product.
+
+The variables are all about zeros and negatives, so we divided the array by zeros, and compare each subarrays:
+```cpp
+int noneZeros(vector<int>& nums){
+    if(nums.size() == 1) return nums[0];
+    vector<int> neg;
+    int len = nums.size();
+    int maxtmp = 1;
+    for(int i = 0; i < len; i++){
+        maxtmp *= nums[i];
+        if(nums[i] < 0) neg.push_back(i);
+    }
+    int lenneg = neg.size();
+    if(lenneg % 2 == 0) return maxtmp;
+    else{
+        int left = maxtmp;
+        int right = maxtmp;
+        for(int j = len-1; j >= neg[lenneg-1]; j--)
+            left /= nums[j];
+        for(int j = 0; j <= neg[0]; j++)
+            right /= nums[j];
+        return left>right? left : right;
+    }
+}
+```
+
+## 160. [Intersection of Two Linked Lists](https://leetcode.com/problems/intersection-of-two-linked-lists/)
+
+> Write a program to find the node at which the intersection of two singly linked lists begins.       
+For example, the following two linked lists:     
+![key](https://assets.leetcode.com/uploads/2018/12/13/160_statement.png)
+> begin to intersect at node c1.
+
+```cpp
+ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+    ListNode *cur1 = headA, *cur2 = headB;
+    while(cur1 != cur2){
+        cur1 = cur1 ? cur1->next : headB;
+        cur2 = cur2 ? cur2->next : headA;
+    }
+    return cur1;
+}
+```
+
+Let's set `x1`, `x2`, `y`, and `x1 > x2`;        
+Then we have `headA + x1+y = nullptr`, `headB + x2+y = nullptr`,
+and our aim is to make 2 pointer meet in the intersection position.    
+And due to the algorithm we can get the solution:
+```
+step(x2 + y):       cur1 = headA + x2+y; cur2 = nullptr;
+step(x1 + y):       cur1 = nullptr; cur2 = headA + (x1-x2);
+step(x1+x2+y):	    cur1 = headB + x2; cur2 = headA + x1;
+```
+
+
+## 169. [Majority Element](https://leetcode.com/problems/majority-element/)
+>Given an array of size n, find the majority element. 
+The majority element is the element that appears 
+**more than** `⌊ n/2 ⌋` times.     
+You may assume that the array is non-empty and 
+the majority element always exist in the array.
+
+Let's review **Boyer-Moore Voting Algorithm**! 
+This algorithm works well in here 
+for finding the absolutely popular number 
+with time complexity $O(n)$ and space complexity $O(1)$.      
+The key is that **when you delete two different number from the array, 
+it's majority number won't change.** That's easy to prove.    
+And with this assertion, we can implement the algorithm as follows:
+```cpp
+int majorityElement(vector<int>& nums) {
+    int len = (int)nums.size();
+    int count = 0;
+    int majority;
+    for(int i = 0; i < len; i++){
+        if(count == 0) {
+            majority = nums[i];
+            count++;
+        }
+        else{
+            if(majority == nums[i]) count++;
+            else count--;
+            // this minus operation means
+            // delete the element together with 
+            // the element before it.
+        }
+    }
+    return majority;
+}
+```
+
+## 207. [Course Schedule](https://leetcode.com/problems/course-schedule/)
+
+> There are a total of *n* courses you have to take, 
+labeled from `0` to `n-1`.      
+Some courses may have prerequisites, for example,
+to take course 0 you have to first take course 1, 
+which is expressed as a pair: `[0,1]`     
+Given the total number of courses and a list of prerequisite **pairs**,
+is it possible for you to finish all courses?
+
+There is the [reference](https://leetcode.com/problems/course-schedule/discuss/222382/C%2B%2B-Solution-12-ms-faster-than-98.37-31-lines-with-explanation) and solution:
+```cpp
+vector<vector<int>> edges;
+vector<int> status;
+int VISITING = -1;
+int VISITED = 1;
+
+bool canFinish(int numCourses, vector<pair<int, int>>& prerequisites) {
+    edges = vector<vector<int>>(numCourses);
+    status = vector<int>(numCourses);
+    for (auto p: prerequisites)
+        edges[p.first].push_back(p.second);
+
+    for (int i = 0; i < numCourses; ++ i)
+        if (!visit(i))
+            return false;
+
+    return true;
+}
+
+bool visit(int e) {
+    if (VISITED == status[e]) 
+        return true;
+    if (VISITING == status[e])
+        return false;
+
+    status[e] = VISITING;
+    for (auto c: edges[e])
+        if (!visit(c))
+            return false;
+
+    status[e] = VISITED;
+    return true;
+}
+```
+
+All the node that is not `visited` means there is a cycle around it, 
+once there is a `visit(i)` value is `visiting`, the result will be false.
+
+
+## 208. [Implement Trie (Prefix Tree)](https://leetcode.com/problems/implement-trie-prefix-tree/)
+
+> Implement a trie with `insert`, `search`, and `startsWith` methods.
+
+There is an operation `insert` in `set` needs to be noticed. 
+`insert` will insert the value to a position from where
+the searching operation is to be started for insertion 
+to make the process faster.      
+OK, it's weird, I think in this code, it will insert to the position
+that the next value is near to the insert value.
+```cpp
+bool startsWith(string prefix) {
+    if(words.find(prefix) == words.end()){
+        words.insert(prefix);
+        auto it = words.find(prefix);
+        it++;
+        if(it == words.end()){
+            words.erase(prefix);
+            return false;
+        }
+        string potential = *it;
+        int length = prefix.length();
+        for(int i = 0; i < length; i++){
+            if(potential[i] != prefix[i]){
+                words.erase(prefix);
+                return false;
+            }
+        }
+        words.erase(prefix);
+        return true;
+    }
+    else
+        return true;
+}
+```
+
+
+## 221. [Maximal Square](https://leetcode.com/problems/maximal-square/)
+
+> Given a 2D binary matrix filled with 0's and 1's, 
+find the largest square containing only 1's and return its area.
+
+This [explanation](https://leetcode.com/problems/maximal-square/discuss/61803/C%2B%2B-Dynamic-Programming) is quite wonderful!      
+Mark `dp[i][j]` as the biggest square's edge that 
+from `(0,0)` to `(i,j)` it contains.     
+Then we have `dp[i][j] = min{dp[i-1][j-1], dp[i-1][j], dp[i][j-1]} + 1` when `matrix[i][j] = 1`, else `dp[i][j] = 0`.
+
+```cpp
+int maximalSquare(vector<vector<char>>& matrix) {
+    if (matrix.empty()) 
+        return 0;
+    int m = matrix.size(), n = matrix[0].size();
+    int sz = 0, pre = 0;
+    vector<int> cur(n, 0);
+    for (int i = 0; i < m; i++) 
+        for (int j = 0; j < n; j++) {
+            int temp = cur[j];
+            if (!i || !j || matrix[i][j] == '0') 
+                cur[j] = matrix[i][j] - '0';
+            else 
+                cur[j] = min(pre, min(cur[j], cur[j - 1])) + 1;
+            sz = max(cur[j], sz);
+            pre = temp;
+        }
+    
+    return sz * sz;
+}
+```
+
+## 238. [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/)
+
+> Given an array `nums` of *n* integers where n > 1,  
+return an array `output` such that `output[i]` is equal to 
+the product of all the elements of `nums` except `nums[i]`.
+
+```cpp
+vector<int> productExceptSelf(vector<int>& nums) {
+    vector<int> res(nums.begin(), nums.end());
+    for (int i = 1; i < res.size(); ++i) 
+        res[i] *= res[i - 1];
+    int product = 1;
+    for (int i = nums.size() - 1; i >= 0; --i) {
+        res[i] = (i - 1 >= 0 ? product * res[i - 1] : product);
+        product *= nums[i];
+    }
+    return res;
+}
+```
+:) I love this solution.
+
+
+## 239. [Sliding Window Maximum](https://leetcode.com/problems/sliding-window-maximum/)
+
+>Given an array *nums*, there is a sliding window of size *k* 
+which is moving from the very left of the array to the very right. 
+You can only see the *k* numbers in the window. 
+Each time the sliding window moves right by one position. 
+Return the max sliding window.
+
+Let's introduce a new data structure (new for me) -- [deque](http://www.cplusplus.com/reference/deque/deque/).     
+The most important character of this structure for this problem
+is it can pop not only in the back but also in the front.
+So the solution can be this:
+```cpp
+vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+    vector<int> result(nums.size(), 0);
+    deque<int> tmp;
+    for (int i = 0, n = (int)nums.size(); i < n; i++) {
+        // remove the element doesn't in the window
+        while (!tmp.empty() && tmp.front() <= i-k)
+            w.pop_front();
+        // make nums[tmp[i]] > nums[tmp[i+1]]
+        while (!tmp.empty() && nums[tmp.back()] <= nums[i])
+            tmp.pop_back();
+        tmp.push_back(i);
+        if (i >= k-1)
+            result.push_back(nums[tmp.front()]);
+    }
+    return result;
+}
+```
+
+##  240. [Search a 2D Matrix II](https://leetcode.com/problems/search-a-2d-matrix-ii/)
+
+> Write an efficient algorithm that searches for a value in an m x n matrix. This matrix has the following properties:
+> - Integers in each row are sorted in ascending from left to right.
+> - Integers in each column are sorted in ascending from top to bottom.
+
+```cpp
+// An example matrix:
+// [
+//   [1,   4,  7, 11, 15],
+//   [2,   5,  8, 12, 19],
+//   [3,   6,  9, 16, 22],
+//   [10, 13, 14, 17, 24],
+//   [18, 21, 23, 26, 30]
+// ]
+bool searchMatrix(vector<vector<int>>& matrix, int target) {
+    int m = matrix.size();
+    if(m == 0) return false;
+    int n = matrix[0].size();
+    int row = m-1, col = 0;
+    while(col < n && row >= 0){
+        if (matrix[row][col] < target)
+            col += 1;
+        else if (matrix[row][col] > target)
+            row -= 1;
+        else return true;
+    }
+    return false;
+}
+```
+Just wanna emphsize that the if statements' order is important
+in these kinds of problem cuz it only run for very little time.
+
+
+## 279. [Perfect Squares](https://leetcode.com/problems/perfect-squares/)
+
+> Given a positive integer *n*, find the least number of perfect square
+numbers (for example, **1, 4, 9, 16, ...**) which sum to *n*.
+
+This [reference](https://leetcode.com/problems/perfect-squares/discuss/71488/Summary-of-4-different-solutions-(BFS-DP-static-DP-and-mathematics)) 
+offers 4 solution! And I wanna focus on **Lagrange's Four Square theorem** and **Legendre's three-square theorem**.
+
+Lagrange's four-square theorem, also known as Bachet's conjecture, states that every natural number can be represented as the sum of four integer squares.     
+Legendre's three-square theorem states that a natural number can be
+represented as the sum of three squares of integers
+$$n = x^2 + y^2 + z^2$$
+if and only if $n$ is not of the form $n = 4^a (8b + 7)$
+for integers $a$ and $b$. 
+These two theorem I cannot prove them true,
+also cannot prove them false.    
+It's a good chance to ask for help from my college partner 
+who still major in mathematics! :)
+
+
+## 300. [Longest Increasing Subsequence]()
+
+> Given an unsorted array of integers, find the length of longest increasing subsequence.
+
+**UNSOLVED under the control of $O(nlog(n))$.**
+Easy to implement this with the control of $O(n^2)$.
+
+
+## 301. [Remove Invalid Parentheses]()
+
+
+## 309. [Best Time to Buy and Sell Stock with Cooldown](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/)
+
+> Say you have an array for which the $i^{th}$ element is the price of a given stock on day i.     
+Design an algorithm to find the maximum profit. You may complete as many transactions as you like (ie, buy one and sell one share of the stock multiple times) with the following restrictions:   
+> - You may not engage in multiple transactions at the same time (ie, you must sell the stock before you buy again).
+> - After you sell your stock, you cannot buy stock on next day. (ie, cooldown 1 day)
+
+Here is a [hint](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/discuss/75927/Share-my-thinking-process).    
+We first build 3 arraies to store the profits with specific operation:
+`buy`, `sell`, `rest`.   
+`buy[i]` means before day i what is the maxProfit for 
+any sequence end with buy + k\*rest;      
+`sell[i]` means before day i what is the maxProfit for 
+any sequence end with sell + k\*rest;     
+`rest[i]` means before day i what is the maxProfit for 
+any sequence end with rest.      
+And with this definition, of course we have 
+`buy[i] <= rest[i] <= sell[i]` and `rest[i] = max{sell[i-1], rest[i]}`.  
+Also, we have:        
+`buy[i] = max{rest[i-1] - price, buy[i-1]}`, 
+the first value means in day i we buy a stock,
+the second value means in day i we rest.        
+`sell[i] = max{buy[i-1] + price, sell[i-1]}`, 
+the first value means in day i we sell the stock,
+the second value means in day i we rest.    
+`rest[i] = max{buy[i-1], sell[i-1], rest[i-1]}`.     
+And with these relationships, we can conclude that:    
+`rest[i] = sell[i-1]`. and then      
+`buy[i] = max{sell[i-2] - price, buy[i-1]}`      
+`sell[i] = max{buy[i-1] + price, sell[i-1]}`      
+With these equations, we now can implement the solution with `buy[-1] = INT_MIN`, `sell[-2] = sell[-1] = 0`
+to find the result (equals to `sell[end]`):
+```cpp
+int maxProfit(vector<int> &prices) {
+    int buy(INT_MIN), sell(0), prev_sell(0), prev_buy;
+    for (int price : prices) {
+        prev_buy = buy;
+        buy = max(prev_sell - price, buy);
+        prev_sell = sell;
+        sell = max(prev_buy + price, sell);
+    }
+    return sell;
+}
+```
+
+## 312. [Burst Balloons](https://leetcode.com/problems/burst-balloons/)
+
+> Given n balloons, indexed from `0` to `n-1`.
+Each balloon is painted with a number on it represented by array `nums`.
+You are asked to burst all the balloons. 
+If the you burst balloon `i` you will get 
+`nums[left] * nums[i] * nums[right]` coins. 
+Here `left` and `right` are adjacent indices of `i`. 
+After the burst, the `left` and `right` then becomes adjacent.     
+> Find the maximum coins you can collect by bursting the balloons wisely.
+
+If you can understand Chinese, you can refer to this [YouTube video](https://www.youtube.com/watch?v=z3hu2Be92UA).      
+Still, we use DP to solve this problem. 
+We note `c[i][j]` as the maxCoins we can get by burst the balloon
+from indexed `i` to `j`, the result will be related to 
+`nums[i-1]` and `nums[j+1]`.     
+And we assume that indexed `k` balloon is brust as the last one,
+then the Coins we can get can be represent as 
+`c[i][k-1] + nums[i-1]*nums[k]*nums[j+1] + c[k+1][j])`, 
+and `c[x][y] = 0` when `x` > `y`.      
+So then the target is to find the proper `k`, 
+and use the corresponding value to update `c[i][j]`.     
+Our finnally task is to get the value of `c[1][n]`, 
+where `n` is the size of `nums`.      
+(btw, to make the caculation easier, we put two `1` into `nums`.)
+![key](https://ws2.sinaimg.cn/large/006tNc79gy1fzov75aw0rj31c00u0tgu.jpg)
+
+So here is the solution:
+```cpp
+int maxCoins(vector<int>& nums) {
+    int n = (int)nums.size();
+    nums.insert(nums.begin(), 1);
+    nums.push_back(1);
+    int dp[n+2][n+2] = {0};
+    for(int l = 1; l <= n; l++)
+        for(int i = 1; i+l-1 <= n; i++){
+            int j = i + l - 1;
+            for(int k = i; k <= j; k++)
+                dp[i][j] = max(dp[i][j],
+                dp[i][k-1] + nums[i-1]*nums[k]*nums[j+1] + dp[k+1][j]);
+        }
+    return dp[1][n];
+}
+```
+
+
+## 322. [Coin Change](https://leetcode.com/problems/coin-change/)
+
+> You are given coins of different denominations and a total amount of money amount. Write a function to compute the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return `-1`.
+
+Seems like a backpage problem. The code is easy to read.
+```cpp
+int coinChange(vector<int>& coins, int amount) {
+    int n = coins.size();
+    if (n == 0)
+    return -1;
+    if (amount <= 0)
+        return 0;
+    vector<int> dp(amount + 1, amount + 1);
+    dp[0] = 0;
+    for (int i = 1; i <= amount; i++) 
+        for (int j = 0; j < n; j++) 
+            if (coins[j] <= i) 
+                dp[i] = min(dp[i], dp[i - coins[j]] + 1);
+    return dp[amount] > amount ? -1 : dp[amount];
+}
+```
+
+## 337. [House Robber III](https://leetcode.com/problems/house-robber-iii/)
+
+> The thief has found himself a new place for his thievery again. There is only one entrance to this area, called the "root." Besides the root, each house has one and only one parent house. After a tour, the smart thief realized that "all houses in this place forms a binary tree". It will automatically contact the police if two directly-linked houses were broken into on the same night.     
+Determine the maximum amount of money the thief can rob tonight without alerting the police.
+
+This question is hard to slove by DP, 
+so just use a recursive way to deal with it.     
+Acutally, I feel that `max` is **quite quicker** than `if` statement.
+```cpp
+int rob(TreeNode* root) {
+    pair<int,int> res = robSub(root);   
+    return max(res.first,res.second);
+}
+// pair<root not robbed, root robbed>
+pair<int,int> robSub(TreeNode* root){
+    if(root ==NULL)
+        return pair<int,int>();
+    pair<int,int> left = robSub(root->left);
+    pair<int,int> right = robSub(root->right);
+    
+    pair<int,int> res;
+    res.first = max(left.first,left.second) + 
+    max(right.first,right.second);
+    res.second = root->val + left.first + right.first;
+    return res;
+}
+```
+
+
+## 338. [Counting Bits](https://leetcode.com/problems/counting-bits/)
+
+> Given a non negative integer number **num**. 
+For every numbers **i** in the range **0 ≤ i ≤ num**. 
+Calculate the number of 1's in their binary representation 
+and return them as an array.
+
+This [reference](https://leetcode.com/problems/counting-bits/discuss/119131/C%2B%2B-Easy-to-Understand-Solution) 
+is very clear and has details.   
+But I wanna use `&` to solve this problem.      
+When you use `i&(i-1)`, 
+you will modify the right-to-left first-met 1 to 0.
+For example, if `i-1` is end with `0`, 
+and then `i` will end with `1`, and `i&(i-1) = i-1`;   
+if `i-1` end with k `1`, eg. `1100 0111`, it ends with k=3 of `1`,
+then `i` will be `1100 1000`, it means `i` and `i-1` is 
+different with only last k+1=4 bits, so it will return `1100 0000`,
+with k+1 of zeros, also satisfies the state.      
+Thus will reduce the number of ones of `i` only and always 1. 
+So you can simply use `dp[i] = dp[i&(i-1)] + 1` to solve this problem.
+
+
+## 347. [Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/)
+
+> Given a non-empty array of integers, 
+return the **k** most frequent elements.         
+**Note**:           
+You may assume k is always valid, 1 ≤ k ≤ number of unique elements.
+Your algorithm's time complexity **must be** 
+better than $O(n log{n})$, where n is the array's size.
+
+Just a kindly reminder of how to use pair.:)
+```cpp
+vector<int> topKFrequent(vector<int>& nums, int k) {
+    unordered_map<int, int> frequency;
+    for (auto num : nums)
+        ++ frequency[num];
+
+    vector<pair<int, int>> freq_items;
+    for (auto item : frequency) 
+        freq_items.push_back(make_pair(item.second, item.first));
+
+    vector<int> result;
+    sort(freq_items.begin(),freq_items.end());
+    int n = freq_items.size();
+    for(int i = 0; i < k; i++)
+        result.push_back(freq_items[n-1-i].second);
+
+    return result;
+}
+```
+
+## 394. [Decode String](https://leetcode.com/problems/decode-string/)
+
+> Given an encoded string, return it's decoded string.     
+The encoding rule is: `k[encoded_string]`, 
+where the encoded_string inside the square brackets 
+is being repeated exactly *k* times. 
+Note that *k* is guaranteed to be a positive integer.      
+You may assume that the input string is always valid; 
+No extra white spaces, square brackets are well-formed, etc.      
+Furthermore, you may assume that the original data 
+does not contain any digits and that 
+digits are only for those repeat numbers, *k*. 
+For example, there won't be input like `3a` or `2[4]`.
+
+It's seems like LSE coding. But has some differences. 
+Anyway, it's easy to solve it by using a recursive way.
+```cpp
+string decodeString(string s) {
+    int i = 0;
+    return decodeString(s, i);
+}
+// this function will return an inner substring,
+// and with i changes, s[i] = ']'.
+string decodeString(const string& s, int& i) {
+    string res;
+    while (i < s.length() && s[i] != ']') {
+        if (!isdigit(s[i]))
+            res += s[i++];
+        else {
+            int n = 0;
+            while (i < s.length() && isdigit(s[i]))
+                n = n * 10 + s[i++] - '0'; 
+            i++; // ignore '['
+            string t = decodeString(s, i);
+            i++; // ignore ']'
+            while (n-- > 0)
+                res += t;
+        }
+    }
+    return res;
+}
+```
+
+
+## 406. [Queue Reconstruction by Height](https://leetcode.com/problems/queue-reconstruction-by-height/)
+
+> Suppose you have a random list of people standing in a queue. 
+Each person is described by a pair of integers `(h, k)`, 
+where `h` is the height of the person and 
+`k` is the number of people in front of this person 
+who have a height greater than or equal to `h`. 
+Write an algorithm to reconstruct the queue.
+
+Still show you the [reference](https://leetcode.com/problems/queue-reconstruction-by-height/discuss/89345/Easy-concept-with-PythonC%2B%2BJava-Solution) first.
+And the idea from this ref is simple:       
+First, Pick out tallest group of people and sort them in a subarray (S). 
+Since there's no other groups of people taller than them, 
+therefore each guy's index will be just as same as his k value.     
+Second, for 2nd tallest group (and the rest), 
+insert each one of them into (S) by k value. 
+
+```cpp
+static bool Compare(const pair<int, int>& a,const pair<int,int>& b){
+    if(a.first == b.first)
+        return a.second < b.second;
+    else return a.first > b.first;
+};
+vector<pair<int, int>> reconstructQueue(vector<pair<int, int>>& people){
+    sort(people.begin(), people.end(), Compare);
+    vector<pair<int, int>> result;
+    while(!people.empty()){
+        result.insert(result.begin()+people[0].second, people[0]);
+        people.erase(people.begin());
+    }
+    return result;
+}
+```
+
+
+## 416. [Partition Equal Subset Sum](https://leetcode.com/problems/partition-equal-subset-sum/)
+
+> Given a **non-empty** array containing only **positive integers**, 
+find if the array can be partitioned into two subsets 
+such that the sum of elements in both subsets is equal.
+
+```cpp
+bool canPartition(vector<int>& nums) {
+    int sum = accumulate(nums.begin(), nums.end(), 0);
+    if(sum % 2) return false;
+    sum /= 2;
+    sort(nums.rbegin(),nums.rend());
+    return helper(nums, sum, 0);
+}
+bool helper(vector<int>& nums, int sum, int index){
+    if(sum == nums[index]) return true;
+    if(sum < nums[index]) return false;
+    return helper(nums,sum-nums[index],index+1) || helper(nums,sum,index+1);
+}
+```
+Runtime: 0 ms; Memory Usage: 766 KB.      
+Sometimes easy backtraking can beats 100%!
+
+
+## 461. [Hamming Distance](https://leetcode.com/problems/hamming-distance/)
+
+> The `Hamming distance` between two integers is the number of positions at which the corresponding bits are different.     
+Given two integers `x` and `y`, calculate the Hamming distance.
+
+```cpp
+int hammingDistance(int x, int y) {
+    int dist = 0, n = x ^ y;
+    while (n) {
+        ++dist;
+        n &= n - 1;
+    }
+    return dist;
+}
+```
+
+Still, `XOR(^)` is useful in here, and the function of `n&(n-1)` 
+which we mentioned in Question 338_Counting Bits is 
+**modify the right-to-left first-met 1 to 0**.
+So, if `x` and `y` have `k` different bits, 
+`x^y` will have `k` ones, and can be changed `k` times with `k &= k-1`.
+
+
+## 538/543/560/572: Still many trees
+
+Trees, some tips:
+1. Nearly every problems can be solved in a recursive way;
+2. Store some values out side the helper function may be useful;
+3. continuous subarrays's sum can be represent as `sum[0,j]-sum[0,i]`.
+
+
+## 621. [Task Scheduler](https://leetcode.com/problems/task-scheduler/)
+
+> Given a char array representing tasks CPU need to do. 
+It contains capital letters A to Z where 
+different letters represent different tasks. 
+Tasks could be done without original order. 
+Each task could be done in one interval. 
+For each interval, CPU could finish one task or just be idle.  
+However, there is a non-negative cooling interval **n** that 
+means between two **same tasks**, 
+there must be at least n intervals that 
+CPU are doing different tasks or just be idle.    
+You need to return the **least** number of intervals 
+the CPU will take to finish all the given tasks.
+
+```cpp
+int leastInterval(vector<char>& tasks, int n) {
+    unordered_map<char,int>mp;
+    int count = 0;
+    for(auto e : tasks)
+    {
+        mp[e]++;
+        count = max(count, mp[e]);
+    }
+    // Scheduling Problem
+    int ans = (count-1)*(n+1);
+    for(auto e : mp) 
+        if(e.second == count) ans++;
+    return max((int)tasks.size(), ans);
+}
+```
