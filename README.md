@@ -15,7 +15,8 @@ https://blog.biezhi.me source code.
 
 ## Island's tips
 
+首先感谢原po，这个网页基本是跟着他的改的。
+
 - 如果是子博要改`_config.yml`里的`baseurl`为repo名字。
 - Title 和 description 在 `_config.yml`。
 - 主页文字在`_layouts/index.html`里改。
-- `feed.xml`在哪里删除我还没找到，所以还是有bug。
