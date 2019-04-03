@@ -22,7 +22,7 @@ paginate_path: "/page/:num"
 author:
   name: Island YAN
   email: yqy.yan@qq.com
-  photo: /public/images/icebear.jpeg
+  photo: /public/images/icebear.jpg
 
 # 社交信息
 # socials:
