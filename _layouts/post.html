@@ -28,6 +28,10 @@ layout: default
 </span>
 {% endif %}
 
+{% if page.image %}
+  <img src="{{ site.baseurl }}/public/images/{{ page.image }}">
+{% endif %}
+
 <div style="margin-top: 1rem;padding-left: 0;">
   <hr class="post-divide" />
 </div>
