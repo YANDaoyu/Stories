@@ -2,7 +2,7 @@
 layout: page
 title: 友链
 permalink: links.html
-image: /public/images/links.jpeg
+image: /public/images/links.jpg
 order: 4
 ---
 
