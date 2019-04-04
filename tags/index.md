@@ -2,7 +2,7 @@
 title: 标签
 layout: page
 permalink: tags.html
-image: /public/images/skyline.jpg
+image: /public/images/tags.jpg
 order: 2
 ---
 

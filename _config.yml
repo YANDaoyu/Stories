@@ -7,7 +7,7 @@ description: >
 
 permalink: /:year/:month/:title.html
 
-image: /public/images/mountains.jpg
+image: /public/images/posts.jpg
 color: '#dc322f'
 google_analytics: 
 baidu_analytics: 2209f3e596f3e0c61a293f49a2f65ba3
