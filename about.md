@@ -7,7 +7,7 @@ order: 5
 ---
 
 {% if site.author.photo %}
-![{{ site.author.name }}]({{ site.author.photo | prepend: site.cdnurl }}){:.me}
+![{{ site.author.name }}]({{ site.baseurl }}/{{ site.author.photo | prepend: site.cdnurl }}){:.me}
 {% endif %}
 
 ## 岛是什么
