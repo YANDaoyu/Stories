@@ -7,7 +7,7 @@ order: 5
 ---
 
 {% if site.author.photo %}
-![{{ site.author.name }}]({{ site.author.photo }}){:.me}
+![{{ site.author.name }}]({{ site.author.photo }}){:height="100px" width="100px" float=right}
 {% endif %}
 
 ## 岛是什么
